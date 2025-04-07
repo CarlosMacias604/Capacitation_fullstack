@@ -1,31 +1,38 @@
-import {createRouter, createWebHistory} from 'vue-router';
-import Home from './views/Home.vue';
-import Login from './views/login.vue';
-import Register from './views/Register.vue';
-import { useUserStore } from './stores/user';
+import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "./stores/user";
+
+import Home from "./views/Home.vue";
+import Editar from "./views/Editar.vue";
+import Login from "./views/Login.vue";
+import Register from "./views/Register.vue";
 
 const requireAuth = async (to, from, next) => {
     const userStore = useUserStore();
-    userStore.loaddigSession = true;
+    userStore.loadingSession = true;
     const user = await userStore.currentUser();
-    console.log(user + 'usuario');
-    if(user){
+    if (user) {
         next();
-    }else{
-        next('/login');
+    } else {
+        next("/login");
     }
-    userStore.loaddigSession = false;
-}
+    userStore.loadingSession = false;
+};
 
 const routes = [
-    {path: '/', component: Home, beforeEnter: requireAuth},
-    {path: '/login', component: Login},
-    {path: '/register', component: Register}
-]
+    { path: "/", component: Home, beforeEnter: requireAuth, name: "home" },
+    {
+        path: "/editar/:id",
+        component: Editar,
+        beforeEnter: requireAuth,
+        name: "editar",
+    },
+    { path: "/login", component: Login, name: "login" },
+    { path: "/register", component: Register, name: "register" },
+];
 
 const router = createRouter({
     routes,
-    history: createWebHistory()
-})
+    history: createWebHistory(),
+});
 
 export default router;
