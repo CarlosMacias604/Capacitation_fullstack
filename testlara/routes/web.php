@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\PostController;
 use App\Http\Controllers\PrimerControlador;
 use Illuminate\Support\Facades\Route;
 
@@ -7,8 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('test', [PrimerControlador::class, 'index']);
-Route::get('otro/{post}', [PrimerControlador::class, 'otro']);
+Route::resource('post', PostController::class);
 
 //CREA UN CRUD DE LAS RUTAS CON SOLO UNA LINEA DE CODIGO
 //Route::resource('post', PrimerControlador::class);
