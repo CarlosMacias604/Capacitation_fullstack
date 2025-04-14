@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\PostController;
-use App\Http\Controllers\PrimerControlador;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,6 +9,7 @@ Route::get('/', function () {
 });
 
 Route::resource('post', PostController::class);
+Route::resource('category', CategoryController::class);
 
 //CREA UN CRUD DE LAS RUTAS CON SOLO UNA LINEA DE CODIGO
 //Route::resource('post', PrimerControlador::class);
