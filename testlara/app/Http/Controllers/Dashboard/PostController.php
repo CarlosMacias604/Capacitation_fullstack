@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Post\StoreRequest;
+use App\Http\Requests\Post\UpdateRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
 use App\Models\Post;
+
 
 class PostController extends Controller
 {
@@ -15,11 +18,12 @@ class PostController extends Controller
      */
     public function index()
     {
+        $posts = Post::paginate(2);
 
-        $post = Post::find(4);
-        $category = Category::find(1);
+        // $post = Post::find(4);
+        // $category = Category::find(1);
         
-        dd($category->posts);
+        // dd($category->posts);
 
         //$post = Post::find(4)->delete();
 
@@ -45,7 +49,7 @@ class PostController extends Controller
         //         'image' => 'test3 image',
         //     ]
         // );
-        return 'Index';
+        return view('dashboard.post.index', compact('posts'));
     }
 
     /**
@@ -53,15 +57,57 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::pluck('id', 'title');
+        $post = new Post();
+
+        return view('dashboard.post.create', compact('categories', 'post'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        //
+        //LA MEJOR FORMA DE VALIDACION PARA CREAR
+        Post::create($request->validated());
+        return to_route('post.index');
+
+        //PRIMER FORMA DE VALIDACION        
+        // $validated = Validator::make($request ->all(), [
+        //     'title' => 'required|min:5|max:500',
+        //     'slug' => 'required|min:5|max:500',
+        //     'content' => 'required|min:7',
+        //     'category_id' => 'required|integer',
+        //     'description' => 'required|min:7',
+        //     'posted' => 'required',
+        // ]);
+        // dd($validated->fails());
+
+        //SEGUNDA FORMA DE VALIDACION
+        // $request->validate([
+        //     'title' => 'required|min:5|max:500',
+        //     'slug' => 'required|min:5|max:500',
+        //     'content' => 'required|min:7',
+        //     'category_id' => 'required|integer',
+        //     'description' => 'required|min:7',
+        //     'posted' => 'required',
+        // ]);
+        
+        //TERCERA FORMA DE VALIDACION ( USANDO FORM REQUEST/ CUSTOM REQUEST)
+        //php artisan make:request Post/StoreRequest
+
+        //dd($request->all()['title']);
+        //dd(request()->get('title'));
+        // Post::create(
+        //     [
+        //         'title' => $request->all()['title'],
+        //         'slug' => $request->all()['slug'],
+        //         'content' => $request->all()['content'],
+        //         'category_id' => $request->all()['category_id'],
+        //         'description' => $request->all()['description'],
+        //         'posted' => $request->all()['posted']
+        //     ]
+        // );
     }
 
     /**
@@ -69,7 +115,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return view('dashboard.post.show', compact('post'));
     }
 
     /**
@@ -77,15 +123,28 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $categories = Category::pluck('id', 'title');
+        return view('dashboard.post.edit', compact('post', 'categories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
-    {
-        //
+    public function update(UpdateRequest $request, Post $post)
+    { 
+        $data = $request->validated();
+
+        //image
+
+        if(isset($data['image'])){
+            $data['image'] = $filename = time().'.'.$data['image']->extension();
+
+            $request->image->move(public_path('uploads/posts'), $filename);
+        }
+        //image
+
+        $post->update($data);
+        return to_route('post.index');
     }
 
     /**
@@ -93,6 +152,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return to_route('post.index');
     }
 }
