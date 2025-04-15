@@ -1,13 +1,11 @@
-@extends('dashboard.master')
+@extends('dashboard.layout')
 
 @section('content')
+    <h1>Create Category</h1>
 
     @include('dashboard.fragment._errors-form')
 
-    <form action="{{route('category.store')}}" method="POST" style="
-        display: flex;
-        flex-direction: column;
-        gap: 10px;">
+    <form action="{{route('category.store')}}" method="POST">
         @include('dashboard.category._form')
     </form>
 @endsection
