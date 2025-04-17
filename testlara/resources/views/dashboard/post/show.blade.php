@@ -1,9 +1,10 @@
-@extends('dashboard.master')
+@extends('dashboard.layout')
 
 @section('content')
     <h1> {{$post->title}} </h1>
 
     <span> {{$post->posted}} </span>
+    <br>
     <span> {{$post->category->title}} </span>
 
     <div>
