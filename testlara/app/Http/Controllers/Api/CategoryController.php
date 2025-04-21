@@ -13,7 +13,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return response()->json(Category::paginate(10));
+        return response()->json(Category::get());
     }
 
     public function slug($slug){

@@ -6,15 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\StoreRequest;
 use App\Http\Requests\Post\UpdateRequest;
 use App\Models\Post;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
     public function index()
     {
-        return response()->json(Post::paginate(10));
+        return response()->json(Post::with('category')->paginate(10));
     }
 
-    public function slug($slug){
+    public function slug($slug)
+    {
         $post = Post::where("slug", $slug)->first();
         if (!$post) {
             return response()->json("Post not found", 404);
@@ -41,6 +43,16 @@ class PostController extends Controller
             return response()->json("Post not found", 404);
         }
         $post->update($request->validated());
+        return response()->json($post);
+    }
+
+    public function upload(Request $request, Post $post)
+    {
+        $data['image'] = $filename = time() . '.' . $request['image']->extension();
+
+        $request->image->move(public_path('uploads/posts'), $filename);
+
+        $post->update($data);
         return response()->json($post);
     }
 
