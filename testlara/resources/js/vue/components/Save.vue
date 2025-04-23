@@ -28,15 +28,33 @@
                 </o-select>
             </o-field>
 
-            <o-button variant="primary" type="submit">Submit</o-button>
+            <div class="flex-col gap-3" v-if="post">
+                <img :src="`/uploads/posts/${post.image}`" style="width: 250px; height: 250px;" :alt="post.title">
+                <o-field class="mt-3">
+                    <o-upload v-model="file">
+                        <o-button tag="a" variant="primary">
+                            <o-icon icon="upload"></o-icon>
+                            <span>Cilck to update</span>
+                        </o-button>
+                    </o-upload>
+                </o-field>
+                <p v-if="file != null"><b>Selected:</b> {{ file?.name }}</p>
+
+                <o-button @click="upload" icon-left="upload" variant="primary">
+                    Update
+                </o-button>
+            </div>
         </div>
+
+
+
+        <br><br>
+
+        <o-button variant="primary" type="submit">Submit Form</o-button>
     </form>
 
     <!-- Notificación -->
-    <o-notification
-        v-if="notification.message"
-        :variant="notification.type"
-        closable
+    <o-notification v-if="notification.message" :variant="notification.type" closable
         aria-close-label="Close notification">
         {{ notification.message }}
     </o-notification>
@@ -51,6 +69,8 @@ const route = useRoute();
 const router = useRouter();
 
 const categories = ref([]);
+const file = ref(null);
+
 const form = ref({
     title: "",
     slug: "",
@@ -92,8 +112,8 @@ const submit = async () => {
             const res = await axios.patch(`/api/post/${post.value.id}`, form.value);
             console.log(res);
         }
-        notification.value = { message: "Post saved successfully!", type: "success" }; // Notificación de éxito
-        setTimeout(() => router.push({ name: "list" }), 2000); // Redirige después de 2 segundos
+        notification.value = { message: "Post saved successfully!", type: "success" };
+        setTimeout(() => router.push({ name: "list" }), 2000);
     } catch (error) {
         const responseErrors = error.response.data;
         if (responseErrors.title) errors.value.title = responseErrors.title[0];
@@ -103,7 +123,7 @@ const submit = async () => {
         if (responseErrors.category_id) errors.value.category_id = responseErrors.category_id[0];
         if (responseErrors.posted) errors.value.posted = responseErrors.posted[0];
 
-        notification.value = { message: "Failed to save post. Please check the form.", type: "danger" }; // Notificación de error
+        notification.value = { message: "Failed to save post. Please check the form.", type: "danger" };
     }
 };
 
@@ -133,6 +153,22 @@ const initPost = () => {
     form.value.category_id = post.value.category_id;
     form.value.posted = post.value.posted;
 };
+
+const upload = async () => {
+    const formData = new FormData();
+    formData.append("image", file.value);
+
+    try {
+        const res = await axios.post("/api/post/upload/" + post.value.id, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        notification.value = { message: "Image saved successfully!", type: "success" };
+    } catch (error) {
+        notification.value = { message: error.response.data.message, type: "danger" };
+    }
+}
 
 onMounted(async () => {
     if (route.params.slug) {

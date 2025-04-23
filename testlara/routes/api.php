@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\UserController;
@@ -13,10 +14,13 @@ Route::get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function () {
 });
 
-Route::resource('category', CategoryController::class);
-Route::resource('post', PostController::class);
-Route::post('post/upload/{post}', [PostController::class, 'upload']);
 
+Route::resource('category', CategoryController::class)->middleware('auth:api');;
+Route::resource('post', PostController::class)->middleware('auth:api');;
+
+
+//Upload image
+Route::post('post/upload/{post}', [PostController::class, 'upload']);
 //Get post by slug
 Route::get('post/slug/{slug}', [PostController::class, 'slug']);
 
@@ -27,4 +31,8 @@ Route::get('category/slug/{slug}', [CategoryController::class, 'slug']);
 Route::get('category/{category}/posts', [CategoryController::class, 'posts']);
 
 //Users
-Route::post('user/login', [UserController::class, 'login']);
+//Route::post('user/login', [UserController::class, 'login']);
+
+Route::get('user', [AuthController::class, 'user'])->middleware('auth:api');
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
