@@ -7,6 +7,7 @@ use App\Http\Requests\Post\StoreRequest;
 use App\Http\Requests\Post\UpdateRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -48,6 +49,12 @@ class PostController extends Controller
 
     public function upload(Request $request, Post $post)
     {
+        $request->validate([
+            'image' => 'required|mimes:jpeg,png,jpg,gif|max:10240',
+        ]);
+
+        Storage::disk('public_upload')->delete('uploads/posts/' . $post->image);
+
         $data['image'] = $filename = time() . '.' . $request['image']->extension();
 
         $request->image->move(public_path('uploads/posts'), $filename);
